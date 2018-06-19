@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset=utf-8>
+    <title>Мое первое приложение на three.js</title>
+    <style>
+      body { margin: 0; }
+      canvas { width: 100%; height: 100% }
+      #lifes{
+        position: absolute;
+        margin-top: 20px;
+        margin-left: 20px; 
+        color: white;
+      }
+    </style>
+  </head>
+  <body><div id="lifes"></div>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r72/three.min.js"></script>
+    <script>
+      //Ваши жизни
+      var life = 5;
+      var lifes = document.getElementById("lifes");
+      lifes.innerHTML = "ВАШИ ЖИЗНИ: "+life;
+      var scene = new THREE.Scene();
+      var camera = new THREE.PerspectiveCamera( 75, window.innerWidth/window.innerHeight, 0.1, 3000 );
+
+      var renderer = new THREE.WebGLRenderer();
+      renderer.setSize( window.innerWidth, window.innerHeight );
+      document.body.appendChild( renderer.domElement );
+
+      var geometry = new THREE.BoxGeometry( 1300, 10, 10 );
+      var material = new THREE.MeshBasicMaterial( { color: 0x00ff00 } );
+      var ground = new THREE.Mesh( geometry, material );
+      scene.add( ground );
+      ground.position.y = -500;
+      var geometry = new THREE.BoxGeometry( 1300, 10, 10 );
+      var material = new THREE.MeshBasicMaterial( { color: 0x00ff00 } );
+      var ground = new THREE.Mesh( geometry, material );
+      scene.add( ground );
+      ground.position.y = 500;
+      var geometry = new THREE.BoxGeometry( 10, 1300, 10 );
+      var material = new THREE.MeshBasicMaterial( { color: 0x00ff00 } );
+      var ground = new THREE.Mesh( geometry, material );
+      scene.add( ground );
+      ground.position.x = 500;
+      var geometry = new THREE.BoxGeometry( 10, 1300, 10 );
+      var material = new THREE.MeshBasicMaterial( { color: 0x00ff00 } );
+      var ground = new THREE.Mesh( geometry, material );
+      scene.add( ground );
+      ground.position.x = -500;
+
+
+      var spotL = new THREE.SpotLight({ color:0x2A64B8});
+      spotL.position.set(90,90,200);
+      scene.add(spotL);
+
+      camera.position.set(0,0,1000);
+      var playerBox = new THREE.BoxGeometry(50,50,50);
+      var playerColor = new THREE.MeshBasicMaterial({ color: 0xf8f8f8 });
+      var player = new THREE.Mesh(playerBox, playerColor);
+      scene.add(player);
+      player.position.y = 0;
+      //изменение координат игрока по y
+      var coordY = 0;
+      var coordX = 0;
+      var speads = 500;
+      setInterval(generateMetiorits, speads);
+      var meteor = 0;
+      var MetrMash = new THREE.Object3D();
+      function generateMetiorits(){
+        speads--;
+        var MmethSize = getRandomArbitrary(5, 50);
+        var meteoriteBox = new THREE.BoxGeometry(MmethSize,MmethSize,MmethSize);
+        var meteoriteColor = new THREE.MeshBasicMaterial({ color: 0xf44250 });
+        var meteorite = new THREE.Mesh(meteoriteBox, meteoriteColor);
+        MetrMash.add(meteorite);
+        meteorite.position.x = 450;
+        meteorite.position.y = getRandomArbitrary(-450, 500);
+        scene.add(MetrMash);
+      }
+      function renderSC(){
+        requestAnimationFrame(renderSC);
+        player.position.y += coordY;
+        player.position.x += coordX;
+        if(player.position.y > 450 || player.position.y < -450 ||player.position.x > 450 || player.position.x < -450){
+          coordY = 0;
+          coordX = 0;
+        }
+        var viviv = MetrMash.children.length;
+        while(viviv){
+          MetrMash.children[viviv-1].position.x -= 7;
+          if(MetrMash.children[viviv-1].position.x < -470){
+            MetrMash.remove(MetrMash.children[viviv-1]);
+          }
+          var MMM = MetrMash.children[viviv-1];
+          if(MMM.position.x-MMM.geometry.parameters["height"]/2 < player.position.x+25) 
+            if(MMM.position.x+MMM.geometry.parameters["height"]/2 > player.position.x-25) 
+              if(MMM.position.y+MMM.geometry.parameters["height"]/2 < player.position.y+25)
+                if(MMM.position.y-MMM.geometry.parameters["height"]/2 > player.position.y-25){
+                  player.position.x -= 50;
+                  MetrMash.remove(MetrMash.children[viviv-1]);
+                  life--;
+                  lifes.innerHTML = "ВАШИ ЖИЗНИ: "+life;
+                  if(life <= 0){
+                    alert("Все ппц!!");
+                  }
+                }
+
+          
+          viviv--;
+        }
+
+        renderer.render(scene, camera);
+      }
+      renderSC();
+      window.addEventListener("keydown", function(event){
+        if(event.keyCode == 38){
+          //вверх
+          coordY = 5;
+          coordX = 0;
+        }
+        else if(event.keyCode == 40){
+          //вниз
+          coordY = -5;
+          coordX = 0;
+        }
+        else if(event.keyCode == 37){
+          //влево
+          coordX = -5;
+          coordY = 0;
+        }
+        else if(event.keyCode == 39){
+          //вправо
+          coordX = 5;
+          coordY = 0;
+        }
+        });
+      function getRandomArbitrary(min, max) {
+        return Math.random() * (max - min) + min;
+      }
+    </script>
+  </body>
+</html>
